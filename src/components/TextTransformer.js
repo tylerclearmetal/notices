@@ -1,39 +1,37 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React, { useState, useEffect } from 'react'
+import { ToastProvider, useToasts, usePrevious } from "../toast-manager";
 
-export default class TextTransformer extends Component {
-    state = {
-        currentValue: ''
-    }
 
-    static propTypes = {
-        mode: PropTypes.oneOf(['lower', 'upper']),
-        transformToLowerCase: PropTypes.func.isRequired,
-        transformToUpperCase: PropTypes.func.isRequired,
-        transformedValue: PropTypes.string
-    }
+export default function TextTransformer(props) {
+    const [currentValue, setCurrentValue] = useState('');
+    const toastController = useToasts();
 
-    handleChange = e => this.setState({ currentValue: e.target.value })
+    const handleChange = e => setCurrentValue(e.target.value)
 
-    handleSubmit = e => {
-        const { transformToLowerCase, transformToUpperCase, mode } = this.props
-        const { currentValue } = this.state
+    const handleSubmit = e => {
+        const { transformToLowerCase, transformToUpperCase, mode } = props
         const action = mode === 'upper' ? transformToUpperCase : transformToLowerCase
         e.preventDefault()
         action(currentValue)
     }
 
-    render() {
-        const { currentValue } = this.state
-        const { transformedValue } = this.props
-        return (
+    const prevStatus = usePrevious(props.status);
+
+    useEffect(() => {
+        if (props.status !== prevStatus && props.status !== null) {
+            toastController.add(props.status)
+        }
+    })
+
+    return (
+        <ToastProvider toastController={toastController}>
             <div className="TextTransformer-container">
-                <form onSubmit={this.handleSubmit}>
-                    <input value={currentValue} type="text" placeholder="Enter text to transform" onChange={this.handleChange} />
+                <form onSubmit={handleSubmit}>
+                    <input value={currentValue} type="text" placeholder="Enter text to transform" onChange={handleChange} />
                     <button type="submit">Transform Text</button>
                 </form>
-                <p>Transformed Text: {transformedValue}</p>
+                <p>Transformed Text: {props.transformedValue}</p>
             </div>
-        )
-    }
+        </ToastProvider>
+    );
 }

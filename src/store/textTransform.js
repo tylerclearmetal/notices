@@ -26,7 +26,8 @@ export const transformToUpperCase = input => transformText(input, UPPERCASE)
 const initialState = {
     transformedValue: '',
     isLoading: false,
-    error: null
+    error: null,
+    status: null
 }
 
 export default function textTransform(state = initialState, { type, payload }) {
@@ -34,9 +35,9 @@ export default function textTransform(state = initialState, { type, payload }) {
         case TRANSFORM_VALUE_LOAD:
             return { ...state, isLoading: true, transformedValue: '' }
         case TRANSFORM_VALUE_SUCCESS:
-            return { ...state, isLoading: false, transformedValue: payload.output }
+            return { ...state, isLoading: false, transformedValue: payload.output, status: 'success', error: null }
         case TRANSFORM_VALUE_ERROR:
-            return { ...state, isLoading: false, error: payload.message }
+            return { ...state, isLoading: false, error: payload.message, status: 'failure' }
         default: return state
     }
 }
